@@ -15,9 +15,7 @@ def load_key():
     return key
 
 
-master_pwd = input("What is the master password? ")
-
-key = load_key() + master_pwd.encode()
+key = load_key() 
 fer = Fernet(key)
 
 # key + password + text to encrypt = random text
@@ -27,11 +25,18 @@ fer = Fernet(key)
 def view():
     with open('password.txt', 'r') as f:
         for line in f.readlines():
-            data = line.rstrip()
-            if "|" in data:
-                user, passw = data.split("|", 1)
+            data = line.strip()
+            if "|" not in data:
+                print(f"Skipping malformed line: '{data}'")
+                continue
 
-            print("User:", user, "| Password:", fer.decrypt(passw.encode()))
+            try:
+                user, passw = data.split("|")
+                print("User:", user, "| Password:", 
+                      fer.decrypt(passw.encode()).decode())
+            except Exception as e:
+                print(f"Error decrypting line: '{data}'. Error: {e}")
+
 
 
 def add():
